@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  moduleformat = "cjs"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Estado{
+  abierta
+  en_proceso
+  entregada
+  cancelado
+}
+
+model Cliente{
+  id Int @id @default (autoincrement())
+  nombre String
+  telefono String
+  correo String @unique
+
+  vehiculos Vehiculo[]
+}
+
+model Vehiculo{
+  id Int @id @default (autoincrement())
+  placa String @unique
+  marca String
+  modelo String
+  año   Int
+  clienteId Int @map("cliente_id")
+  ordenes OrdenServicio[]
+
+  cliente Cliente @relation(fields:[clienteId], references:[id] )
+}
+
+model OrdenServicio{
+  id Int @id @default (autoincrement())
+  descripcion String
+  fechaIngreso DateTime
+  estado Estado
+  vehiculoId Int @map("vehiculo_id")
+  refacciones Refaccion[]
+
+  vehiculo Vehiculo @relation(fields:[vehiculoId], references: [id])
+}
+
+model Refaccion{
+  id Int @id @default (autoincrement())
+  nombre String
+  precio Int
+  ordenId Int @map("orden_id")
+
+  ordenServicio OrdenServicio@relation(fields:[ordenId], references: [id])
+}
